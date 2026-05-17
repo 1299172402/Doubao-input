@@ -46,7 +46,11 @@ jobs:
           CGO_ENABLED: 0
         run: |
           VERSION=${GITHUB_REF_NAME:-dev}
-          go build -ldflags="-s -w -X main.Version=${VERSION}" -o doubao-input-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} .
+          LDFLAGS="-s -w -X main.Version=${VERSION}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            LDFLAGS="${LDFLAGS} -H windowsgui"
+          fi
+          go build -ldflags="${LDFLAGS}" -o doubao-input-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
