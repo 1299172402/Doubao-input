@@ -3,12 +3,14 @@ module doubao-input
 go 1.25.0
 
 require (
+	fyne.io/systray v1.12.1
 	github.com/atotto/clipboard v0.1.4
 	github.com/gofiber/fiber/v3 v3.2.0
 )
 
 require (
 	github.com/andybalholm/brotli v1.2.1 // indirect
+	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gofiber/schema v1.7.1 // indirect
 	github.com/gofiber/utils/v2 v2.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect

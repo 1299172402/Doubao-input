@@ -13,9 +13,12 @@ var staticFS []byte
 //go:embed static/logo.png
 var logoPNG []byte
 
+var webApp *fiber.App
+
 // StartWeb 启动 Web 服务
 func StartWeb(addr string) {
 	app := fiber.New()
+	webApp = app
 
 	// 首页
 	app.Get("/", func(c fiber.Ctx) error {
@@ -71,4 +74,12 @@ func StartWeb(addr string) {
 	})
 
 	app.Listen(addr)
+}
+
+// StopWeb 关闭 Web 服务
+func StopWeb() {
+	if webApp != nil {
+		webApp.Shutdown()
+		webApp = nil
+	}
 }
