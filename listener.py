@@ -1,7 +1,6 @@
-"""豆包消息监听"""
+"""豆包获取最新一次发送的消息"""
 
 import uuid
-import time
 import requests
 
 from config import URL, PARAMS, HEADERS, COOKIES, PAYLOAD
@@ -34,12 +33,3 @@ def poll_new_message():
             return latest["tts_content"]
 
     return None
-
-
-def listen():
-    """持续监听，有新消息时 yield 返回"""
-    while True:
-        msg = poll_new_message()
-        if msg:
-            yield msg
-        time.sleep(1)
