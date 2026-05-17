@@ -14,22 +14,30 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
         include:
           - goos: windows
             goarch: amd64
             suffix: .exe
+            runs-on: ubuntu-latest
+            cgo_enabled: '0'
           - goos: linux
             goarch: amd64
             suffix: ''
+            runs-on: ubuntu-latest
+            cgo_enabled: '0'
           - goos: darwin
             goarch: amd64
             suffix: ''
+            runs-on: macos-13
+            cgo_enabled: '1'
           - goos: darwin
             goarch: arm64
             suffix: ''
+            runs-on: macos-14
+            cgo_enabled: '1'
 
     steps:
       - uses: actions/checkout@v6
@@ -43,7 +51,7 @@ jobs:
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-          CGO_ENABLED: 0
+          CGO_ENABLED: ${{ matrix.cgo_enabled }}
         run: |
           VERSION=${GITHUB_REF_NAME:-dev}
           LDFLAGS="-s -w -X main.Version=${VERSION}"
