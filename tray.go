@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	_ "image/png"
 	"os"
 	"os/exec"
 	"runtime"
@@ -18,11 +19,17 @@ func StartTray() {
 }
 
 func onReady() {
-	systray.SetIcon(logo2PNG)
-	systray.SetTitle("Doubao Input")
-	systray.SetTooltip("Doubao Input " + Version)
-	mOpen := systray.AddMenuItem("打开 Web 界面", "在浏览器中打开管理界面")
-	mClose := systray.AddMenuItem("关闭 Web 界面", "关闭 Web 服务器")
+	icoData, err := pngToICO(logo2PNG)
+	if err != nil {
+		fmt.Println("图标转换失败:", err)
+		icoData = logo2PNG
+	}
+	systray.SetIcon(icoData)
+	systray.SetTitle("豆包语音输入")
+	systray.SetTooltip("豆包语音输入")
+
+	mOpen := systray.AddMenuItem("设置", "打开浏览器进行配置")
+	mClose := systray.AddMenuItem("关闭设置", "关闭配置页面并停止 Web 服务")
 	mClose.Hide()
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("退出", "退出程序")
