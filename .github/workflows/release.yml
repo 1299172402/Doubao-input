@@ -13,9 +13,55 @@ on:
       - '*.md'
 
 jobs:
-  build:
+  build-console:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            suffix: .exe
+          - goos: linux
+            goarch: amd64
+            suffix: ''
+          - goos: darwin
+            goarch: amd64
+            suffix: ''
+          - goos: darwin
+            goarch: arm64
+            suffix: ''
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+
+      - name: Build console
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: ${{ matrix.cgo_enabled }}
+        run: |
+          VERSION=${GITHUB_REF_NAME:-dev}
+          LDFLAGS="-s -w -X Doubao-input/info.Version=${VERSION}"
+          go build -ldflags="${LDFLAGS}" -o doubao-input-console-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd/console
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: doubao-input-console-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            doubao-input-console-*-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}
+
+
+  build-app:
     runs-on: ${{ matrix.runs-on }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - goos: windows
@@ -47,28 +93,29 @@ jobs:
         with:
           go-version: '1.25'
 
-      - name: Build
+      - name: Build app
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: ${{ matrix.cgo_enabled }}
         run: |
           VERSION=${GITHUB_REF_NAME:-dev}
-          LDFLAGS="-s -w -X main.Version=${VERSION}"
+          LDFLAGS="-s -w -X Doubao-input/info.Version=${VERSION}"
           if [ "${{ matrix.goos }}" = "windows" ]; then
             LDFLAGS="${LDFLAGS} -H windowsgui"
           fi
-          go build -ldflags="${LDFLAGS}" -o doubao-input-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd
+          go build -ldflags="${LDFLAGS}" -o doubao-input-app-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd/app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: doubao-input-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: doubao-input-*-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}
+          name: doubao-input-app-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            doubao-input-app-*-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build-console, build-app]
     runs-on: ubuntu-latest
     permissions:
       contents: write
