@@ -1,17 +1,16 @@
-package main
+package web
 
 import (
 	_ "embed"
 	"os"
 
 	"github.com/gofiber/fiber/v3"
+
+	"Doubao-input/assets"
+	"Doubao-input/info"
+	"Doubao-input/internal/core"
+	"Doubao-input/internal/tool"
 )
-
-//go:embed static/index.html
-var staticFS []byte
-
-//go:embed static/logo.png
-var logoPNG []byte
 
 var webApp *fiber.App
 
@@ -27,18 +26,18 @@ func StartWeb(addr string) {
 	// 首页
 	app.Get("/", func(c fiber.Ctx) error {
 		c.Set("Content-Type", "text/html; charset=utf-8")
-		return c.Send(staticFS)
+		return c.Send(assets.IndexPage)
 	})
 
 	// Logo
 	app.Get("/logo.png", func(c fiber.Ctx) error {
 		c.Set("Content-Type", "image/png")
-		return c.Send(logoPNG)
+		return c.Send(assets.LogoPNG)
 	})
 
 	// 版本号
 	app.Get("/api/version", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{"version": Version})
+		return c.JSON(fiber.Map{"version": info.Version})
 	})
 
 	// 获取 session
@@ -58,7 +57,7 @@ func StartWeb(addr string) {
 		if err := c.Bind().JSON(&req); err != nil {
 			return c.Status(400).JSON(fiber.Map{"error": "Bad request"})
 		}
-		if err := SaveCurlFile("session.txt", req.Content); err != nil {
+		if err := tool.WriteCurlFile("session.txt", req.Content); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Save failed"})
 		}
 		return c.JSON(fiber.Map{"ok": true})
@@ -66,18 +65,16 @@ func StartWeb(addr string) {
 
 	// 获取最新消息
 	app.Get("/api/poll", func(c fiber.Ctx) error {
-		config, err := GetConfig("session.txt")
-		if err != nil {
-			return c.Status(400).JSON(fiber.Map{"error": err.Error()})
-		}
-		msgID, msg, err := GetLatestMessage(config)
+		msgID, msg, err := core.DeliverMessage()
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 		}
 		return c.JSON(fiber.Map{"ok": true, "message_id": msgID, "message": msg})
 	})
 
-	app.Listen(addr)
+	// 只监听 127.0.0.1，禁止远程访问
+	bindAddr := "127.0.0.1" + addr
+	app.Listen(bindAddr)
 }
 
 // StopWeb 关闭 Web 服务

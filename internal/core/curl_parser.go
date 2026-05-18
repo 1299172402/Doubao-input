@@ -1,16 +1,17 @@
-package main
+package core
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"os"
 	"regexp"
 	"strings"
+
+	"Doubao-input/internal/tool"
 )
 
-// CurlConfig 解析后的 curl 配置
-type CurlConfig struct {
+// curlConfig 解析后的 curl 配置
+type curlConfig struct {
 	URL     string
 	Params  map[string]string
 	Headers map[string]string
@@ -18,20 +19,9 @@ type CurlConfig struct {
 	Payload map[string]interface{}
 }
 
-// ReadCurlFile 从文件读取 curl 命令
-func ReadCurlFile(path string) (string, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return "", fmt.Errorf("读取文件失败: %w", err)
-	}
-	// 处理行尾反斜杠续行
-	content := strings.ReplaceAll(string(data), "\\\n", " ")
-	return content, nil
-}
-
-// ParseCurl 解析 curl 命令，返回配置
-func ParseCurl(curlStr string) (*CurlConfig, error) {
-	config := &CurlConfig{
+// parseCurl 解析 curl 命令，返回配置
+func parseCurl(curlStr string) (*curlConfig, error) {
+	config := &curlConfig{
 		Params:  make(map[string]string),
 		Headers: make(map[string]string),
 		Cookies: make(map[string]string),
@@ -100,19 +90,14 @@ func ParseCurl(curlStr string) (*CurlConfig, error) {
 	return config, nil
 }
 
-// SaveCurlFile 将 curl 命令写入文件
-func SaveCurlFile(path string, content string) error {
-	return os.WriteFile(path, []byte(content), 0644)
-}
-
-// GetConfig 从 session.txt 解析配置
-func GetConfig(filePath string) (*CurlConfig, error) {
-	curlStr, err := ReadCurlFile(filePath)
+// getConfig 从 session.txt 解析配置
+func getConfig(filePath string) (*curlConfig, error) {
+	curlStr, err := tool.ReadCurlFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	config, err := ParseCurl(curlStr)
+	config, err := parseCurl(curlStr)
 	if err != nil {
 		return nil, err
 	}

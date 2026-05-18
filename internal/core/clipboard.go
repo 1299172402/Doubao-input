@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -12,14 +12,7 @@ var lastMessageID string
 
 func StartClipboardWriter() {
 	for {
-		config, err := GetConfig("session.txt")
-		if err != nil {
-			fmt.Println("配置加载失败:", err)
-			time.Sleep(3 * time.Second)
-			continue
-		}
-
-		msgID, msg, err := GetLatestMessage(config)
+		msgID, msg, err := DeliverMessage()
 		if err != nil {
 			fmt.Println("轮询错误:", err)
 			time.Sleep(1 * time.Second)

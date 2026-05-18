@@ -1,4 +1,4 @@
-package main
+package tool
 
 import (
 	"bytes"
@@ -7,12 +7,10 @@ import (
 	"fmt"
 	"image"
 	_ "image/png"
-	"os/exec"
-	"runtime"
 )
 
-// pngToICO 将 PNG 字节转换为 ICO 格式
-func pngToICO(pngData []byte) ([]byte, error) {
+// PngToIco 将 PNG 字节转换为 ICO 格式
+func PngToIco(pngData []byte) ([]byte, error) {
 	cfg, _, err := image.DecodeConfig(bytes.NewReader(pngData))
 	if err != nil {
 		return nil, fmt.Errorf("解析 PNG 尺寸失败: %w", err)
@@ -48,18 +46,4 @@ func pngToICO(pngData []byte) ([]byte, error) {
 	buf.Write(pngData)
 
 	return buf.Bytes(), nil
-}
-
-// openBrowser 在不同平台上打开默认浏览器访问指定 URL
-func openBrowser(url string) {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	case "darwin":
-		cmd = exec.Command("open", url)
-	default:
-		cmd = exec.Command("xdg-open", url)
-	}
-	cmd.Start()
 }

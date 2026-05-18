@@ -4,11 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
-)
 
-// 通过 ldflags 在构建时注入，例如:
-// go build -ldflags="-X main.Version=v1.0.0" -o doubao-input.exe .
-var Version = "dev"
+	"Doubao-input/info"
+	"Doubao-input/internal/core"
+	"Doubao-input/internal/system"
+	"Doubao-input/internal/tool"
+	"Doubao-input/internal/web"
+)
 
 func main() {
 	silent := flag.Bool("silent", false, "静默模式，不打开浏览器")
@@ -16,10 +18,10 @@ func main() {
 
 	// 交互式模式（双击启动）
 	fmt.Printf("Doubao Input\n")
-	fmt.Printf("Version: %s\n", Version)
+	fmt.Printf("Version: %s\n", info.Version)
 
 	// 启动消息监听（后台运行，不阻塞）
-	go StartClipboardWriter()
+	go core.StartClipboardWriter()
 
 	// 非静默模式
 	if !*silent {
@@ -28,11 +30,11 @@ func main() {
 		if p := os.Getenv("DOUBAO_INPUT_PORT"); p != "" {
 			addr = ":" + p
 		}
-		go StartWeb(addr)
+		go web.StartWeb(addr)
 		// 自动打开浏览器
-		go openBrowser("http://localhost:2828")
+		go tool.OpenBrowser("http://localhost:2828")
 	}
 
 	// 启动系统托盘（阻塞 main）
-	StartTray()
+	system.StartTray()
 }

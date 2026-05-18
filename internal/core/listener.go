@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"net/url"
 )
 
-// MessageResponse API 响应结构
-type MessageResponse struct {
+// messageResponse API 响应结构
+type messageResponse struct {
 	DownlinkBody struct {
 		PullSingleChainDownlinkBody struct {
 			Messages []struct {
@@ -22,8 +22,13 @@ type MessageResponse struct {
 	} `json:"downlink_body"`
 }
 
-// GetLatestMessage 获取最新一条用户消息，返回消息 ID 和文本内容
-func GetLatestMessage(config *CurlConfig) (string, string, error) {
+// getLatestMessage 获取最新一条用户消息，返回消息 ID 和文本内容
+func getLatestMessage(config *curlConfig) (string, string, error) {
+	config, err := getConfig("session.txt")
+	if err != nil {
+		fmt.Println("配置加载失败:", err)
+	}
+
 	// 构建请求体
 	payloadBytes, err := json.Marshal(config.Payload)
 	if err != nil {
@@ -75,7 +80,7 @@ func GetLatestMessage(config *CurlConfig) (string, string, error) {
 	}
 
 	// 解析响应
-	var msgResp MessageResponse
+	var msgResp messageResponse
 	if err := json.Unmarshal(body, &msgResp); err != nil {
 		return "", "", fmt.Errorf("解析响应失败: %w", err)
 	}
@@ -88,5 +93,16 @@ func GetLatestMessage(config *CurlConfig) (string, string, error) {
 		}
 	}
 
-	return "", "", fmt.Errorf("未找到用户消息：%s", string(body))
+	return "", "", fmt.Errorf("未找到用户消息，请重新配置session.txt：%s", string(body))
+}
+
+func DeliverMessage() (string, string, error) {
+	config, err := getConfig("session.txt")
+	if err != nil {
+		fmt.Println("配置加载失败:", err)
+	}
+
+	msgID, msg, err := getLatestMessage(config)
+
+	return msgID, msg, err
 }

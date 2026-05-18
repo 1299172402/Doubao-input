@@ -1,12 +1,11 @@
-module github.com/1299172402/doubao-input/cmd
+module Doubao-input
 
 go 1.25.0
 
 require (
-	fyne.io/systray v1.12.1
 	github.com/atotto/clipboard v0.1.4
+	github.com/energye/systray v1.0.3
 	github.com/gofiber/fiber/v3 v3.2.0
-	github.com/kardianos/service v1.2.4
 )
 
 require (
