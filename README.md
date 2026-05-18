@@ -16,7 +16,6 @@
 - 🌐 **Web 设置界面** — 通过浏览器可视化配置 session
 - 📋 **自动复制** — 新消息自动复制到剪贴板，直接 Ctrl+V 粘贴
 - 🔄 **自动轮询** — 每秒检查新消息，实时同步
-- ⚡ **开机自启** — 支持注册为系统服务，开机自动运行
 
 ## 下载
 
@@ -53,7 +52,6 @@
 |--------|------|
 | 打开设置页面 | 启动 Web 服务并自动打开浏览器 |
 | 关闭设置页面 | 停止 Web 服务 |
-| 开机自启 | 注册/注销 Windows 服务，实现开机自动运行(需要以管理员身份注册) |
 | 退出 | 退出程序 |
 
 ### 命令行参数
@@ -67,6 +65,28 @@
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
 | `DOUBAO_INPUT_PORT` | Web 服务端口 | `2828` |
+
+### 开机自启（Windows）
+
+将以下内容保存为 `doubao-input-start.vbs`，放在与 `doubao-input.exe` 同目录下：
+
+```vbs
+Dim ws
+Set ws = Wscript.CreateObject("Wscript.Shell")
+ws.run "doubao-input-app-v1.1.3-windows-amd64.exe -silent",vbhide
+Wscript.quit
+```
+
+> ⚠️ 请将 `doubao-input-app-v1.1.3-windows-amd64.exe` 替换为你实际的可执行文件名。
+
+然后为 `doubao-input-start.vbs` 创建快捷方式，将快捷方式放入 Windows 开始菜单启动文件夹：
+
+```
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+```
+
+之后每次开机都会自动静默启动程序。
+
 
 ## For Developers
 
@@ -98,7 +118,11 @@ go run ./cmd/app
 │   │   ├── curl_parser.go    # cURL 命令解析与配置读写
 │   │   └── listener.go       # 调用豆包接口获取最新消息
 │   ├── system/
-│   │   └── tray.go           # 系统托盘菜单管理
+│   │   ├── tray.go           # 系统托盘菜单管理
+│   │   └── lock/
+│   │       ├── lock.go       # 进程锁接口
+│   │       ├── lock_unix.go  # Unix 系统实现
+│   │       └── lock_windows.go # Windows 系统实现
 │   ├── tool/
 │   │   ├── fileio.go         # 文件读写工具
 │   │   ├── openbrowser.go    # 跨平台打开浏览器
@@ -181,3 +205,4 @@ Web 服务，基于 `gofiber/fiber/v3`，仅监听 `127.0.0.1`（禁止远程访
 | `github.com/energye/systray` | 系统托盘 |
 | `github.com/atotto/clipboard` | 剪贴板操作 |
 | `github.com/gofiber/fiber/v3` | Web 框架 |
+
