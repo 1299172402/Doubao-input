@@ -68,12 +68,12 @@ jobs:
             goarch: amd64
             suffix: .exe
             runs-on: ubuntu-latest
-            cgo_enabled: '0'
+            cgo_enabled: '1'
           - goos: linux
             goarch: amd64
             suffix: ''
             runs-on: ubuntu-latest
-            cgo_enabled: '0'
+            cgo_enabled: '1'
           - goos: darwin
             goarch: amd64
             suffix: ''
