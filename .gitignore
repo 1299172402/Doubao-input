@@ -3,3 +3,6 @@
 
 # Session files (contain sensitive data)
 session.txt
+
+# Config files
+*.yml
