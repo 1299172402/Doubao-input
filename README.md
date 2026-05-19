@@ -11,11 +11,13 @@
 
 ## 功能特性
 
-- 🎤 **语音转文字** — 利用豆包强大的语音识别，手机说话、电脑粘贴
-- 🖥️ **系统托盘** — 最小化到托盘，不占用任务栏
+- 🎤 **语音转文字** — 手机上对着豆包说话，电脑上自动获取识别结果
+- 📋 **自动复制** — 新消息自动复制到剪贴板，直接 <kbd>Ctrl</kbd>+<kbd>V</kbd> 粘贴
+- ⌨️ **自动输入** — 可选启用，自动将识别结果输入到当前焦点窗口
+- 🖥️ **系统托盘** — 最小化到托盘，不占用任务栏，支持快速切换自动输入
 - 🌐 **Web 设置界面** — 通过浏览器可视化配置 session
-- 📋 **自动复制** — 新消息自动复制到剪贴板，直接 Ctrl+V 粘贴
-- 🔄 **自动轮询** — 每秒检查新消息，实时同步
+- 🔄 **实时轮询** — 每秒检查新消息，低延迟同步
+- 🔒 **单实例运行** — 防止重复启动
 
 ## 下载
 
@@ -28,14 +30,14 @@
 
 ## Quick Start
 
-### (首次使用) 1. 获取 session
+### 1. 获取 Session（首次使用）
 
 1. 打开 [豆包网页版](https://www.doubao.com)，登录并进入一个对话
-2. 按 `F12` 打开开发者工具 → **Network** / **网络** 标签
-3. 在对话中发送一条消息，找到 `single` (`https://www.doubao.com/im/chain/single`) 请求
-4. 右键该请求 → **Copy** / **复制** → **Copy as cURL (Bash)** / **复制为 cURL (Bash)**
-5. 双击运行 `doubao-input.exe`
-6. 在打开的浏览器页面中，按照提示粘贴从豆包复制的 cURL 内容
+2. 按 <kbd>F12</kbd> 打开开发者工具 → **Network**（网络）标签
+3. 在对话中发送一条消息，找到 `single`（`https://www.doubao.com/im/chain/single`）请求
+4. 右键该请求 → **Copy** → **Copy as cURL (Bash)**
+5. 双击运行 `doubao-input.exe`，浏览器会自动打开设置页面
+6. 将复制的 cURL 内容粘贴到文本框中
 7. 点击「💾 保存配置」，然后点击「🚀 获取消息」测试是否正常
 
 ### 2. 在手机上对着豆包的同一个对话说话
@@ -50,21 +52,25 @@
 
 | 菜单项 | 说明 |
 |--------|------|
-| 打开设置页面 | 启动 Web 服务并自动打开浏览器 |
-| 关闭设置页面 | 停止 Web 服务 |
+| ☑/☐ 自动输入 | 开启/关闭自动输入模式（自动将识别结果键入当前焦点窗口） |
+| 设置 | 打开浏览器配置页面 |
 | 退出 | 退出程序 |
 
 ### 命令行参数
 
 | 参数 | 说明 |
 |------|------|
-| `-silent` | 静默模式，不打开浏览器和 Web 服务，仅运行后台轮询 |
+| `-silent` | 静默模式，不自动打开浏览器（Web 服务和后台轮询仍正常运行） |
 
 ### 环境变量
+
+环境变量前缀为 `DOUBAO_INPUT`，可覆盖配置文件中的对应字段：
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
 | `DOUBAO_INPUT_PORT` | Web 服务端口 | `2828` |
+| `DOUBAO_INPUT_AUTO_TYPE` | 是否启用自动输入 | `false` |
+
 
 ### 开机自启（Windows）
 
@@ -86,123 +92,4 @@ Wscript.quit
 ```
 
 之后每次开机都会自动静默启动程序。
-
-
-## For Developers
-
-### 构建并运行
-
-```bash
-go mod tidy
-go build -o doubao-input.exe ./cmd/app
-./doubao-input.exe
-```
-
-### 运行
-
-```bash
-go run ./cmd/app
-```
-
-### 项目结构
-
-```
-├── cmd/
-│   ├── app/
-│   │   └── main.go           # 主程序入口（带托盘和 Web 服务）
-│   └── console/
-│       └── main.go           # 控制台模式（仅消息轮询，无托盘）
-├── internal/
-│   ├── core/
-│   │   ├── clipboard.go      # 消息轮询主循环，自动复制到剪贴板
-│   │   ├── curl_parser.go    # cURL 命令解析与配置读写
-│   │   └── listener.go       # 调用豆包接口获取最新消息
-│   ├── system/
-│   │   ├── tray.go           # 系统托盘菜单管理
-│   │   └── lock/
-│   │       ├── lock.go       # 进程锁接口
-│   │       ├── lock_unix.go  # Unix 系统实现
-│   │       └── lock_windows.go # Windows 系统实现
-│   ├── tool/
-│   │   ├── fileio.go         # 文件读写工具
-│   │   ├── openbrowser.go    # 跨平台打开浏览器
-│   │   └── pngtoico.go       # PNG 转 ICO 格式
-│   └── web/
-│       └── web.go            # Web 服务（Fiber 框架），提供配置界面和 API
-├── assets/
-│   ├── asset.go              # go:embed 资源声明
-│   └── static/
-│       ├── index.html        # Web 设置界面
-│       └── logo.png          # 应用图标
-├── info/
-│   └── version.go            # 版本号定义（构建时注入）
-├── session.txt               # 存放从浏览器复制的 cURL 命令
-├── go.mod                    # Go 模块定义
-└── README.md
-```
-
-### 各模块说明
-
-#### `cmd/app/main.go`
-
-主程序入口。支持 `-silent` 参数，启动消息轮询（后台）和系统托盘（阻塞主线程）。非静默模式下同时启动 Web 服务并自动打开浏览器。
-
-#### `cmd/console/main.go`
-
-控制台模式入口，仅启动消息轮询，不启动托盘和 Web 服务。适用于无 GUI 环境。
-
-#### `internal/core/clipboard.go`
-
-消息轮询主循环，每秒检查一次新消息。检测到新消息时自动写入系统剪贴板，并在控制台打印带时间戳的日志。
-
-#### `internal/core/listener.go`
-
-- `DeliverMessage()` — 根据 cURL 配置调用豆包接口，解析响应并返回最新一条用户消息（`user_type == 1`）
-
-#### `internal/core/curl_parser.go`
-
-- `parseCurl(curlStr)` — 解析 cURL 命令，提取 URL、请求参数、请求头、Cookie、请求体
-- `getConfig(filePath)` — 读取文件并解析为 `curlConfig` 结构
-
-#### `internal/tool/fileio.go`
-
-- `ReadCurlFile(path)` — 读取 cURL 文件内容，处理行尾反斜杠续行
-- `WriteCurlFile(path, content)` — 保存 cURL 内容到文件
-
-#### `internal/tool/openbrowser.go`
-
-- `OpenBrowser(url)` — 跨平台（Windows/macOS/Linux）打开默认浏览器
-
-#### `internal/tool/pngtoico.go`
-
-- `PngToIco(pngData)` — 将 PNG 转换为 ICO 格式（用于系统托盘图标）
-
-#### `internal/system/tray.go`
-
-系统托盘管理，使用 `energye/systray` 实现托盘图标和菜单。支持打开/关闭设置页面、退出程序。
-
-#### `internal/web/web.go`
-
-Web 服务，基于 `gofiber/fiber/v3`，仅监听 `127.0.0.1`（禁止远程访问）。HTML 和图标通过 `//go:embed` 内嵌到二进制文件中，无需额外资源文件。
-
-| 路由 | 方法 | 说明 |
-|------|------|------|
-| `/` | GET | Web 设置界面 |
-| `/logo.png` | GET | 应用图标 |
-| `/api/version` | GET | 获取版本号（构建时注入） |
-| `/api/session` | GET | 获取当前 session |
-| `/api/session/save` | POST | 保存 session |
-| `/api/poll` | GET | 手动获取最新消息（用于测试） |
-
-#### `info/version.go`
-
-版本号定义，通过 `go build -ldflags` 在构建时注入。
-
-### 依赖
-
-| 包名 | 用途 |
-|------|------|
-| `github.com/energye/systray` | 系统托盘 |
-| `github.com/atotto/clipboard` | 剪贴板操作 |
-| `github.com/gofiber/fiber/v3` | Web 框架 |
 
