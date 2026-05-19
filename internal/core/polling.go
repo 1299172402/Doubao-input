@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/atotto/clipboard"
-	"github.com/go-vgo/robotgo"
+
 )
 
 // 记录上次消息 ID，避免重复处理
@@ -26,7 +26,7 @@ func StartPolling() {
 			now := time.Now().Format("2006-01-02 15:04:05")
 			fmt.Printf("[%s] %s\n", now, msg)
 			clipboard.WriteAll(msg)
-			robotgo.Type(msg)
+			typeText(msg)
 		}
 
 		time.Sleep(1 * time.Second)

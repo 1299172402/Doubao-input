@@ -104,7 +104,7 @@ jobs:
           if [ "${{ matrix.goos }}" = "windows" ]; then
             LDFLAGS="${LDFLAGS} -H windowsgui"
           fi
-          go build -ldflags="${LDFLAGS}" -o doubao-input-app-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd/app
+          go build -tags typing -ldflags="${LDFLAGS}" -o doubao-input-app-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd/app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
