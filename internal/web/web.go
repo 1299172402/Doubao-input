@@ -2,24 +2,28 @@ package web
 
 import (
 	_ "embed"
-	"fmt"
 	"os"
 
 	"github.com/gofiber/fiber/v3"
 
 	"Doubao-input/assets"
 	"Doubao-input/info"
+	"Doubao-input/internal/config"
 	"Doubao-input/internal/core"
-	"Doubao-input/internal/tool"
+	"Doubao-input/internal/tool/fileio"
 )
 
 var webApp *fiber.App
 
 // StartWeb 启动 Web 服务
-func StartWeb(addr string) {
+func StartWeb() {
 	if webApp != nil {
 		return // 已经在运行
 	}
+
+	// 启动 Web 服务
+	port := config.GetConfig().Port
+	addr := ":" + port
 
 	app := fiber.New()
 	webApp = app
@@ -58,7 +62,7 @@ func StartWeb(addr string) {
 		if err := c.Bind().JSON(&req); err != nil {
 			return c.Status(400).JSON(fiber.Map{"error": "Bad request"})
 		}
-		if err := tool.WriteCurlFile("session.txt", req.Content); err != nil {
+		if err := fileio.WriteCurlFile("session.txt", req.Content); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Save failed"})
 		}
 		return c.JSON(fiber.Map{"ok": true})
@@ -84,16 +88,4 @@ func StopWeb() {
 		webApp.Shutdown()
 		webApp = nil
 	}
-}
-
-func Launch() {
-	// 启动 Web 服务
-	addr := ":2828"
-	if p := os.Getenv("DOUBAO_INPUT_PORT"); p != "" {
-		addr = ":" + p
-	}
-	go StartWeb(addr)
-	// 自动打开浏览器
-	fmt.Printf("Web 界面: http://localhost%s\n", addr)
-	tool.OpenBrowser(fmt.Sprintf("http://localhost%s", addr))
 }

@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"Doubao-input/assets"
+	"Doubao-input/internal/config"
 	"Doubao-input/internal/tool"
-	"Doubao-input/internal/web"
 
 	"github.com/energye/systray"
 )
@@ -18,7 +18,20 @@ func StartTray() {
 }
 
 func openSetting() {
-	web.Launch()
+	tool.OpenBrowser()
+}
+
+var mAutoType *systray.MenuItem
+
+func taggleAutoType() {
+	cfg := config.GetConfig()
+	cfg.AutoType = !cfg.AutoType
+	config.SaveConfig(cfg)
+	if config.GetConfig().AutoType {
+		mAutoType.Check()
+	} else {
+		mAutoType.Uncheck()
+	}
 }
 
 func onReady() {
@@ -31,11 +44,10 @@ func onReady() {
 	systray.SetTitle("豆包语音输入")
 	systray.SetTooltip("豆包语音输入")
 
-	mOpen := systray.AddMenuItem("打开设置页面", "打开浏览器进行配置")
+	mAutoType = systray.AddMenuItemCheckbox("自动输入", "开启或关闭自动输入", config.GetConfig().AutoType)
+	mAutoType.Click(taggleAutoType)
+	mOpen := systray.AddMenuItem("设置", "打开浏览器进行配置")
 	mOpen.Click(openSetting)
-	mClose := systray.AddMenuItem("关闭设置页面", "关闭配置页面并停止 Web 服务")
-	mClose.Click(web.StopWeb)
-
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("退出", "退出程序")
 	mQuit.Click(systray.Quit)

@@ -1,14 +1,17 @@
 package tool
 
 import (
+	"Doubao-input/internal/config"
 	_ "embed"
+	"fmt"
 	_ "image/png"
 	"os/exec"
 	"runtime"
 )
 
 // openBrowser 在不同平台上打开默认浏览器访问指定 URL
-func OpenBrowser(url string) {
+func OpenBrowser() {
+	url := fmt.Sprintf("http://localhost:%s", config.GetConfig().Port)
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
