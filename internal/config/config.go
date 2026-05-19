@@ -17,9 +17,9 @@ type Config struct {
 }
 
 func setDefaults() {
-	viper.SetDefault("port", "2828")     // 默认端口
-	viper.SetDefault("auto_type", false) // 默认不启用自动输入
-	viper.SetDefault("session", "")      // 默认 session 为空
+	viper.SetDefault("port", "2828")    // 默认端口
+	viper.SetDefault("auto_type", true) // 默认启用自动输入
+	viper.SetDefault("session", "")     // 默认 session 为空
 }
 
 func LoadConfig(path string) (*Config, error) {
