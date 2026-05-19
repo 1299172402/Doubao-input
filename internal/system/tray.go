@@ -44,9 +44,9 @@ func onReady() {
 	systray.SetTitle("豆包语音输入")
 	systray.SetTooltip("豆包语音输入")
 
-	mAutoType = systray.AddMenuItemCheckbox("自动输入", "开启或关闭自动输入", config.GetConfig().AutoType)
+	mAutoType = systray.AddMenuItemCheckbox("自动输入", "启用自动输入功能", config.GetConfig().AutoType)
 	mAutoType.Click(taggleAutoType)
-	mOpen := systray.AddMenuItem("设置", "打开浏览器进行配置")
+	mOpen := systray.AddMenuItem("设置", "打开设置页面")
 	mOpen.Click(openSetting)
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("退出", "退出程序")
