@@ -40,16 +40,9 @@ func taggleStartup() {
 	cfg := config.GetConfig()
 	newStartupState := !cfg.Startup
 
-	if newStartupState {
-		if err := startup.InstallStartup(); err != nil {
-			fmt.Println("安装开机自启失败:", err)
-			return
-		}
-	} else {
-		if err := startup.UninstallStartup(); err != nil {
-			fmt.Println("卸载开机自启失败:", err)
-			return
-		}
+	if err := startup.UpdateStartup(newStartupState); err != nil {
+		fmt.Println("更新开机自启状态失败:", err)
+		return
 	}
 
 	// 只有操作成功后才更新配置和UI

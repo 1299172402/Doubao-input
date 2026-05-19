@@ -9,6 +9,7 @@ import (
 	"Doubao-input/info"
 	"Doubao-input/internal/config"
 	"Doubao-input/internal/core"
+	"Doubao-input/internal/system/startup"
 )
 
 var webApp *fiber.App
@@ -85,7 +86,13 @@ func StartWeb() {
 			cfg.IntervalTime = *req.IntervalTime
 		}
 		if req.Startup != nil {
-			cfg.Startup = *req.Startup
+			newStartupState := *req.Startup
+
+			if err := startup.UpdateStartup(newStartupState); err != nil {
+				return c.Status(500).JSON(fiber.Map{"error": "更新开机自启状态失败: " + err.Error()})
+			}
+
+			cfg.Startup = newStartupState
 		}
 
 		if err := config.SaveConfig(cfg); err != nil {
