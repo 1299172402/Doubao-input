@@ -81,6 +81,7 @@ jobs:
             LDFLAGS="${LDFLAGS} -H windowsgui"
           fi
           go build -ldflags="${LDFLAGS}" -o doubao-input-${VERSION}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }} ./cmd/app
+        shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
