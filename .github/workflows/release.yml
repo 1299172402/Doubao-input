@@ -147,7 +147,7 @@ jobs:
           ylogin: ${{ secrets.LANZOU_YLOGIN }}
           phpdisk_info: ${{ secrets.LANZOU_PHPDISK_INFO }}
           folder_id: ${{ secrets.LANZOU_FOLDER_ID }}
-          file_path: 'artifacts/*.zip'
+          file_path: 'artifacts/**/*'
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
