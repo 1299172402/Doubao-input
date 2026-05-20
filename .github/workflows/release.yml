@@ -141,6 +141,14 @@ jobs:
           path: artifacts
           skip-decompress: true
 
+      - name: Release to Lanzou Cloud
+        uses: 1299172402/lanzou_release@v1
+        with:
+          ylogin: ${{ secrets.LANZOU_YLOGIN }}
+          phpdisk_info: ${{ secrets.LANZOU_PHPDISK_INFO }}
+          folder_id: ${{ secrets.LANZOU_FOLDER_ID }}
+          file_path: 'artifacts/*.zip'
+
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
