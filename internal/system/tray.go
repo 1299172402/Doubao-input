@@ -64,8 +64,8 @@ func onReady() {
 		icoData = assets.LogoPNG
 	}
 	systray.SetIcon(icoData)
-	systray.SetTitle("豆包语音输入")
-	systray.SetTooltip("豆包语音输入")
+	systray.SetTitle("Doubao Susurro - 豆包语音输入")
+	systray.SetTooltip("Doubao Susurro - 豆包语音输入")
 
 	mAutoType = systray.AddMenuItemCheckbox("自动输入", "启用自动输入功能", config.GetConfig().AutoType)
 	mAutoType.Click(taggleAutoType)
